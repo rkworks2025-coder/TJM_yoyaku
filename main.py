@@ -35,16 +35,16 @@ def send_discord_notification(message):
 # 1. ログイン情報設定
 LOGIN_URL = "https://dailycheck.tc-extsys.jp/tcrappsweb/web/login/tawLogin.html"
 USER_ID_1 = "0030"
-USER_ID_2 = "927583"
-PASSWORD = "Ccj-322222"
+USER_ID_2 = "928091"
+PASSWORD = "Ccj-922222"
 
 # 2. 設定
-PRODUCTION_SHEET_URL = "https://docs.google.com/spreadsheets/d/13cQngK_Xx38VU67yLS-iTHyOZgsACZdxM34l-Jq_U9A/edit"
+PRODUCTION_SHEET_URL = "https://docs.google.com/spreadsheets/d/1LQwnhCgHZByC-JryFSW2xfQMMG08gvLrboXPCJyvVN0/edit"
 # ★JKS本体スプレッドシートID
-JKS_SHEET_ID = "16HYziQ5now1IATZJU3wZhTE08S_3B8xVP9MbfceHONE"
+JKS_SHEET_ID = "1sHT_qmnAV6gfQ--MMmK-WVhFqgxzDTTRwFXmAwifozI"
 
 CSV_FILE_NAME = "station_code_map.csv"
-INSPECTION_SHEET_URL = "https://docs.google.com/spreadsheets/d/11XglLANtnG7bCxYjLRMGoZY25wspjHsGR3IG2ZyRITs/edit"
+INSPECTION_SHEET_URL = "https://docs.google.com/spreadsheets/d/1QvT_eA1ir-cjOcI1_WDDqjpFlrsBWjjfeqgRduEw4xI/edit"
 
 # 3. Google認証
 SERVICE_ACCOUNT_KEY_FILE = "service_account.json"
