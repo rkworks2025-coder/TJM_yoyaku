@@ -1,0 +1,39 @@
+name: Manual Patrol Check
+
+on:
+  workflow_dispatch:
+    inputs:
+      target_area:
+        description: '巡回エリア選択'
+        required: true
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - kanagawa
+          - tama
+          - force_all
+
+jobs:
+  run-scraper:
+    runs-on: ubuntu-latest
+ 
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+
+      - name: Run Patrol Script
+        env:
+          GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
+          TARGET_AREA: ${{ github.event.inputs.target_area }}
+          PYTHONUNBUFFERED: "1"
+        run: python main.py
