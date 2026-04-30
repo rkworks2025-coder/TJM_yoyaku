@@ -36,4 +36,6 @@ jobs:
           GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
           TARGET_AREA: ${{ github.event.inputs.target_area }}
           PYTHONUNBUFFERED: "1"
-        run: python main.py
+        run: |
+          echo "$GCP_SA_KEY" > credentials.json
+          python main.py
