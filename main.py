@@ -75,10 +75,14 @@ if TARGET_AREA == 'force_all':
 else:
     filter_mask = df_map['status'].astype(str).str.lower().isin(['checked', 'unnecessary', '7days_rule'])
     df_active = df_map[~filter_mask].copy()
-    if TARGET_AREA == 'kanagawa':
-        df_active = df_active[df_active['city'].str.contains('大和|海老名', na=False)].copy()
-    elif TARGET_AREA == 'tama':
-        df_active = df_active[df_active['city'].str.contains('多摩', na=False)].copy()
+    
+    # 拡張性を考慮したマッピング方式（今後エリアが増えた場合はここに追記するだけで対応可能）
+    area_map = {
+        'yamato': '大和',
+        'ebina': '海老名'
+    }
+    if TARGET_AREA in area_map:
+        df_active = df_active[df_active['city'].str.contains(area_map[TARGET_AREA], na=False)].copy()
 
 target_stations_raw = df_active.drop_duplicates(subset=['stationCd']).to_dict('records')
 
