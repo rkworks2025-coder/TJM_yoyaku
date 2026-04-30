@@ -1,6 +1,9 @@
 # ==========================================================
 # 【GitHub Actions用】3エリア巡回システム (JKS本体同時書き込み版)
-# 改修内容: CarData_Ryu と JKS本体(16HYziQ...) への同時同期機能を追加
+# 改修内容:
+# 1. CarData_Ryu と JKS本体(16HYziQ...) への同時同期機能
+# 2. 新設ステーション対応(inspectionlogにない場合は未登録として送信)
+# 3. エリア抽象化(大和・海老名のみ対象)
 # ==========================================================
 import sys
 import os
@@ -76,7 +79,7 @@ else:
     filter_mask = df_map['status'].astype(str).str.lower().isin(['checked', 'unnecessary', '7days_rule'])
     df_active = df_map[~filter_mask].copy()
     
-    # 拡張性を考慮したマッピング方式（今後エリアが増えた場合はここに追記するだけで対応可能）
+    # マッピング方式によるエリアの抽象化
     area_map = {
         'yamato': '大和',
         'ebina': '海老名'
@@ -117,10 +120,17 @@ else:
     for item in target_stations_raw:
         norm_station = normalize_station_name(item.get('station', ''))
         if not norm_station: continue
+        
+        # 修正: ログに存在しない場合はエラーにせず「未登録(新設)」としてGASへ送るためリストに追加
         if norm_station not in inspection_status_map:
-            raise ValueError(f"エラー: ステーション '{item.get('station')}' が inspectionlog に存在しません。")
+            print(f"   -> [未登録(新設)検知] 巡回対象に追加: {item.get('station')}")
+            final_target_stations.append(item)
+            continue
+
+        # ログに存在する場合は、ステータスによる絞り込みを実行
         if not all((s in skip_statuses) for s in inspection_status_map[norm_station]):
             final_target_stations.append(item)
+            
     target_stations = final_target_stations
 
 if len(target_stations) == 0:
