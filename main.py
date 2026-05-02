@@ -23,7 +23,7 @@ from selenium.webdriver.common.keys import Keys
 from bs4 import BeautifulSoup
 
 # --- Discord通知用設定 ---
-DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1474006170057441300/Emo5Ooe48jBUzMhzLrCBn85_3Td-ck3jYtXtVa2vdXWWyT2HxSuKghWchrG7gCsZhEqY"
+DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1500164902680264795/87eD610kNASHHzL9rWYawkTalF7eREWHRNO9s2EdKX12eqIrGT2YbwcWSi8xTFMmq9H8"
 
 def send_discord_notification(message):
     if not DISCORD_WEBHOOK_URL: return
@@ -134,7 +134,7 @@ else:
     target_stations = final_target_stations
 
 if len(target_stations) == 0:
-    send_discord_notification(f"⚠️ 【データなし】 {TARGET_AREA.upper()} 更新対象データがありません。")
+    send_discord_notification(f"<@1474004343207366839> ⚠️ 【データなし】 {TARGET_AREA.upper()} 更新対象データがありません。")
     sys.exit()
 
 # ==========================================================
@@ -257,10 +257,10 @@ try:
                 raise Exception(f"JKS本体への同時書き込みに失敗しました: {e}")
 
         status_prefix = "【全件強制更新】" if TARGET_AREA == 'force_all' else "【更新完了】"
-        send_discord_notification(f"✅ {status_prefix} {TARGET_AREA.upper()} 両シートの更新が完了しました！")
+        send_discord_notification(f"<@1474004343207366839> ✅ {status_prefix} {TARGET_AREA.upper()} 両シートの更新が完了しました！")
 
 except Exception as e:
-    send_discord_notification(f"❌ 【重大なエラー】 {TARGET_AREA.upper()} スクレイピング停止:\n```{e}```")
+    send_discord_notification(f"<@1474004343207366839> ❌ 【重大なエラー】 {TARGET_AREA.upper()} スクレイピング停止:\n```{e}```")
     print(f"\nエラー発生のため停止: {e}")
     sys.exit(1)
 
