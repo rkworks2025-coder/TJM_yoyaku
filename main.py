@@ -1,9 +1,9 @@
 # ==========================================================
-# 【GitHub Actions用】3エリア巡回システム (JKS本体同時書き込み版)
+# 【GitHub Actions用】多摩・府中エリア巡回システム (JKS本体同時書き込み版)
 # 改修内容:
 # 1. CarData_Ryu と JKS本体(16HYziQ...) への同時同期機能
 # 2. 新設ステーション対応(inspectionlogにない場合は未登録として送信)
-# 3. エリア抽象化(大和・海老名のみ対象)
+# 3. エリア抽象化(多摩・府中のみ対象)
 # ==========================================================
 import sys
 import os
@@ -23,7 +23,7 @@ from selenium.webdriver.common.keys import Keys
 from bs4 import BeautifulSoup
 
 # --- Discord通知用設定 ---
-DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1500164902680264795/87eD610kNASHHzL9rWYawkTalF7eREWHRNO9s2EdKX12eqIrGT2YbwcWSi8xTFMmq9H8"
+DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1474006170057441300/Emo5Ooe48jBUzMhzLrCBn85_3Td-ck3jYtXtVa2vdXWWyT2HxSuKghWchrG7gCsZhEqY"
 
 def send_discord_notification(message):
     if not DISCORD_WEBHOOK_URL: return
@@ -38,16 +38,16 @@ def send_discord_notification(message):
 # 1. ログイン情報設定
 LOGIN_URL = "https://dailycheck.tc-extsys.jp/tcrappsweb/web/login/tawLogin.html"
 USER_ID_1 = "0030"
-USER_ID_2 = "928091"
-PASSWORD = "Ccj-922222"
+USER_ID_2 = "927583"
+PASSWORD = "Ccj-322222"
 
 # 2. 設定
-PRODUCTION_SHEET_URL = "https://docs.google.com/spreadsheets/d/1LQwnhCgHZByC-JryFSW2xfQMMG08gvLrboXPCJyvVN0/edit"
+PRODUCTION_SHEET_URL = "https://docs.google.com/spreadsheets/d/13cQngK_Xx38VU67yLS-iTHyOZgsACZdxM34l-Jq_U9A/edit"
 # ★JKS本体スプレッドシートID
-JKS_SHEET_ID = "1sHT_qmnAV6gfQ--MMmK-WVhFqgxzDTTRwFXmAwifozI"
+JKS_SHEET_ID = "16HYziQ5now1IATZJU3wZhTE08S_3B8xVP9MbfceHONE"
 
 CSV_FILE_NAME = "station_code_map.csv"
-INSPECTION_SHEET_URL = "https://docs.google.com/spreadsheets/d/1QvT_eA1ir-cjOcI1_WDDqjpFlrsBWjjfeqgRduEw4xI/edit"
+INSPECTION_SHEET_URL = "https://docs.google.com/spreadsheets/d/11XglLANtnG7bCxYjLRMGoZY25wspjHsGR3IG2ZyRITs/edit"
 
 # 3. Google認証
 SERVICE_ACCOUNT_KEY_FILE = "service_account.json"
@@ -67,7 +67,7 @@ print(f"\n[エリア指定] {TARGET_AREA}")
 if not os.path.exists(CSV_FILE_NAME):
     raise FileNotFoundError(f"エラー: '{CSV_FILE_NAME}' が見つかりません。")
 
-df_map = pd.read_csv(CSV_FILE_NAME)
+df_map = pd.read_csv(CSV_FILE_NAME, encoding='utf-8')
 df_map.columns = df_map.columns.str.strip()
 if 'area' in df_map.columns: df_map = df_map.rename(columns={'area': 'city'})
 if 'station_name' in df_map.columns: df_map = df_map.rename(columns={'station_name': 'station'})
@@ -78,11 +78,11 @@ if TARGET_AREA == 'force_all':
 else:
     filter_mask = df_map['status'].astype(str).str.lower().isin(['checked', 'unnecessary', '7days_rule'])
     df_active = df_map[~filter_mask].copy()
-    
+
     # マッピング方式によるエリアの抽象化
     area_map = {
-        'yamato': '大和',
-        'ebina': '海老名'
+        'tama': '多摩',
+        'fuchu': '府中'
     }
     if TARGET_AREA in area_map:
         df_active = df_active[df_active['city'].str.contains(area_map[TARGET_AREA], na=False)].copy()
@@ -120,8 +120,8 @@ else:
     for item in target_stations_raw:
         norm_station = normalize_station_name(item.get('station', ''))
         if not norm_station: continue
-        
-        # 修正: ログに存在しない場合はエラーにせず「未登録(新設)」としてGASへ送るためリストに追加
+
+        # ログに存在しない場合はエラーにせず「未登録(新設)」としてGASへ送るためリストに追加
         if norm_station not in inspection_status_map:
             print(f"   -> [未登録(新設)検知] 巡回対象に追加: {item.get('station')}")
             final_target_stations.append(item)
@@ -130,7 +130,7 @@ else:
         # ログに存在する場合は、ステータスによる絞り込みを実行
         if not all((s in skip_statuses) for s in inspection_status_map[norm_station]):
             final_target_stations.append(item)
-            
+
     target_stations = final_target_stations
 
 if len(target_stations) == 0:
@@ -183,7 +183,7 @@ try:
 
         soup = BeautifulSoup(driver.page_source, "lxml")
         car_boxes = soup.find_all("div", class_="car-list-box")
-        
+
         # タイムライン開始時刻取得
         start_time_str = "00:00"
         try:
@@ -202,7 +202,7 @@ try:
             try:
                 title = box.find("div", class_="car-list-title-area").get_text(strip=True)
                 plate, model = title.split(" / ") if " / " in title else (title, "")
-                
+
                 status_list = []
                 data_cells = []
                 for r in box.find("table", class_="timetable").find_all("tr"):
@@ -210,12 +210,12 @@ try:
                     if cells and any(x in (cells[0].get("class", [])) for x in ["vacant", "full", "impossible", "others"]):
                         data_cells = cells
                         break
-                
+
                 if data_cells:
                     for cell in data_cells:
                         sym = "○" if "vacant" in cell.get("class", []) else ("s" if "impossible" in cell.get("class", []) else "×")
                         for _ in range(int(cell.get("colspan", 1))): status_list.append(sym)
-                
+
                 if len(status_list) < 288: status_list += ["×"] * (288 - len(status_list))
                 collected_data.append([city, station_name, plate.strip(), model.strip(), start_time_str, "".join(status_list)])
             except: pass
@@ -247,7 +247,7 @@ try:
             # 2. JKS本体 への書き込み (ID: 16HYziQ...)
             try:
                 try: ws_jks = sh_jks.worksheet(work_sheet_name)
-                except gspread.WorksheetNotFound: 
+                except gspread.WorksheetNotFound:
                     # 1ミリの不整合も許さないため、JKS側にシートがない場合はエラーで停止
                     raise Exception(f"JKS本体側に '{work_sheet_name}' タブが見つかりません。")
                 ws_jks.clear()
