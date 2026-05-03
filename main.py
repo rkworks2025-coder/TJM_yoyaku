@@ -23,7 +23,7 @@ from selenium.webdriver.common.keys import Keys
 from bs4 import BeautifulSoup
 
 # --- Discord通知用設定 ---
-DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1474006170057441300/Emo5Ooe48jBUzMhzLrCBn85_3Td-ck3jYtXtVa2vdXWWyT2HxSuKghWchrG7gCsZhEqY"
+DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1500164902680264795/87eD610kNASHHzL9rWYawkTalF7eREWHRNO9s2EdKX12eqIrGT2YbwcWSi8xTFMmq9H8"
 
 def send_discord_notification(message):
     if not DISCORD_WEBHOOK_URL: return
