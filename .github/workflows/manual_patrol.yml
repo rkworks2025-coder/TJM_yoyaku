@@ -10,8 +10,8 @@ on:
         type: choice
         options:
           - all
-          - tama
-          - fuchu
+          - yamato
+          - ebina
           - force_all
 
 jobs:
