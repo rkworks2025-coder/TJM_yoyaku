@@ -12,6 +12,7 @@ on:
           - all
           - yamato
           - ebina
+          - nakahara
           - force_all
 
 jobs:
