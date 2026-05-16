@@ -82,7 +82,8 @@ else:
     # マッピング方式によるエリアの抽象化
     area_map = {
         'yamato': '大和',
-        'ebina': '海老名'
+        'ebina': '海老名',
+        'nakahara': '中原'
     }
     if TARGET_AREA in area_map:
         df_active = df_active[df_active['city'].str.contains(area_map[TARGET_AREA], na=False)].copy()
