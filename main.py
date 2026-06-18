@@ -57,6 +57,34 @@ if not os.path.exists(SERVICE_ACCOUNT_KEY_FILE):
 
 gc = gspread.service_account(filename=SERVICE_ACCOUNT_KEY_FILE)
 
+# ==========================================================
+# リトライ付きAPI呼び出しラッパー
+# Google Sheets APIの一時的なエラー(5xx, 429)のみリトライする
+# 5回, 1→2→4→8→16秒の指数バックオフ
+# ==========================================================
+def with_retry(func, *args, **kwargs):
+    max_retries = 5
+    delay = 1
+    last_exception = None
+    for attempt in range(1, max_retries + 1):
+        try:
+            return func(*args, **kwargs)
+        except gspread.exceptions.APIError as e:
+            status_code = None
+            try:
+                status_code = e.response.status_code
+            except Exception:
+                pass
+            is_retryable = (status_code == 429) or (status_code is not None and 500 <= status_code < 600)
+            if not is_retryable or attempt == max_retries:
+                raise
+            print(f"   !! [リトライ {attempt}/{max_retries}] APIエラー(status={status_code})。{delay}秒後に再試行します...")
+            last_exception = e
+            sleep(delay)
+            delay *= 2
+    if last_exception:
+        raise last_exception
+
 # エリアフィルタリング設定
 TARGET_AREA = os.environ.get('TARGET_AREA', 'all').lower()
 print(f"\n[エリア指定] {TARGET_AREA}")
@@ -239,8 +267,8 @@ try:
             try:
                 try: ws_prod = sh_prod.worksheet(work_sheet_name)
                 except gspread.WorksheetNotFound: ws_prod = sh_prod.add_worksheet(title=work_sheet_name, rows=len(df_area)+10, cols=10)
-                ws_prod.clear()
-                ws_prod.update(data_to_upload, range_name='A1')
+                with_retry(ws_prod.clear)
+                with_retry(ws_prod.update, data_to_upload, range_name='A1')
                 print(f"   -> CarData_Ryu: '{work_sheet_name}' 更新完了")
             except Exception as e:
                 raise Exception(f"CarData_Ryuへの書き込みに失敗しました: {e}")
@@ -251,8 +279,8 @@ try:
                 except gspread.WorksheetNotFound: 
                     # 1ミリの不整合も許さないため、JKS側にシートがない場合はエラーで停止
                     raise Exception(f"JKS本体側に '{work_sheet_name}' タブが見つかりません。")
-                ws_jks.clear()
-                ws_jks.update(data_to_upload, range_name='A1')
+                with_retry(ws_jks.clear)
+                with_retry(ws_jks.update, data_to_upload, range_name='A1')
                 print(f"   -> JKS本体: '{work_sheet_name}' 更新完了")
             except Exception as e:
                 raise Exception(f"JKS本体への同時書き込みに失敗しました: {e}")
