@@ -39,14 +39,7 @@ def send_discord_notification(message):
 LOGIN_URL = "https://dailycheck.tc-extsys.jp/tcrappsweb/web/login/tawLogin.html"
 USER_ID_1 = "0030"
 USER_ID_2 = "REDACTED"
-# PW_MODE環境変数（mode1/mode2）に応じてPWを切り替える（ポータルのPWモード切替と連携）
-PW_MODE = os.environ.get('PW_MODE', 'mode1').lower()
-PASSWORD_MAP = {
-    "mode1": "REDACTED",
-    "mode2": "REDACTED"
-}
-PASSWORD = PASSWORD_MAP.get(PW_MODE, "REDACTED")
-print(f"[PWモード] {PW_MODE} を使用")
+PASSWORD = "REDACTED"
 
 # 2. 設定
 PRODUCTION_SHEET_URL = "https://docs.google.com/spreadsheets/d/1LQwnhCgHZByC-JryFSW2xfQMMG08gvLrboXPCJyvVN0/edit"
@@ -294,7 +287,7 @@ try:
 
         # force_all完了後: GASのforceAllAbsenceCheckを呼び出してTMA不在シートを上書き更新
         if TARGET_AREA == 'force_all':
-            GAS_URL = "★担当者A用GASデプロイURL★"
+            GAS_URL = "https://script.google.com/macros/s/AKfycby_h_EtlHsp2Tx_5RZdaY9RBimo4D6ASJrHLwwo1pOGtrHS0kjJxPGL0jfA9Sd5S8Ts/exec"
             try:
                 req = urllib.request.Request(
                     GAS_URL + "?action=forceAllAbsenceCheck",
