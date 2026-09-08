@@ -73,9 +73,9 @@ def normalize_plate(s):
 
 # 1. ログイン情報設定
 LOGIN_URL = "https://dailycheck.tc-extsys.jp/tcrappsweb/web/login/tawLogin.html"
-USER_ID_1 = "0030"
-USER_ID_2 = "REDACTED"
-PASSWORD = "REDACTED"
+USER_ID_1 = os.environ.get("TMA_ID_1", "0030")
+USER_ID_2 = os.environ.get("TMA_ID_2", "")
+PASSWORD = os.environ.get("TMA_PW_MODE1", "")
 
 # 2. 設定
 PRODUCTION_SHEET_URL = "https://docs.google.com/spreadsheets/d/1LQwnhCgHZByC-JryFSW2xfQMMG08gvLrboXPCJyvVN0/edit"
